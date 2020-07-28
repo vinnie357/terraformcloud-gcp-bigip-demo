@@ -9,4 +9,5 @@ resource google_storage_bucket bigip-ha {
   labels = {
       f5_cloud_failover_label = var.f5_cloud_failover_label
   }
+  force_destroy = true
 }
