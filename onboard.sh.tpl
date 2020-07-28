@@ -402,7 +402,7 @@ waitNetwork
 # BIG-IP Credentials
 svcacct_token=$(curl -s -f --retry 20 "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r ".access_token")
 admin_password=$(curl -s -f --retry 20 "https://secretmanager.googleapis.com/v1/projects/$projectId/secrets/$usecret/versions/1:access" -H "Authorization: Bearer $svcacct_token" | jq -r ".payload.data" | base64 --decode)
-CREDS="admin:"$admin_password
+CREDS="admin:$admin_password"
 
 # Create admin account and password
 echo "Updating admin account"
