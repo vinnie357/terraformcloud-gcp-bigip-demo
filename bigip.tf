@@ -187,8 +187,8 @@ resource "google_compute_instance" "f5vm02" {
   }
 
   network_interface {
-    network    = var.extVpc
-    subnetwork = var.extSubnet
+    network    = google_compute_network.vpc_network_ext.name
+    subnetwork = google_compute_subnetwork.vpc_network_ext_sub.name
     access_config {
     }
     alias_ip_range {
@@ -197,15 +197,15 @@ resource "google_compute_instance" "f5vm02" {
   }
 
   network_interface {
-    network    = var.mgmtVpc
-    subnetwork = var.mgmtSubnet
+    network    = google_compute_network.vpc_network_mgmt.name
+    subnetwork = google_compute_subnetwork.vpc_network_mgmt_sub.name
     access_config {
     }
   }
 
   network_interface {
-    network    = var.intVpc
-    subnetwork = var.intSubnet
+    network    = google_compute_network.vpc_network_int.name
+    subnetwork = google_compute_subnetwork.vpc_network_int_sub.name
   }
 
   metadata = {
