@@ -118,6 +118,7 @@ locals {
 
 # Create F5 BIG-IP VMs
 resource "google_compute_instance" "f5vm01" {
+  depends_on = [google_compute_subnetwork.vpc_network_mgmt_sub,google_compute_subnetwork.vpc_network_int_sub,google_compute_subnetwork.vpc_network_ext_sub]
   name           = "${var.prefix}-${var.host1_name}"
   machine_type   = var.bigipMachineType
   zone           = var.gcp_zone
@@ -168,6 +169,7 @@ resource "google_compute_instance" "f5vm01" {
 }
 
 resource "google_compute_instance" "f5vm02" {
+  depends_on = [google_compute_subnetwork.vpc_network_mgmt_sub,google_compute_subnetwork.vpc_network_int_sub,google_compute_subnetwork.vpc_network_ext_sub]
   name           = "${var.prefix}-${var.host2_name}"
   machine_type   = var.bigipMachineType
   zone           = var.gcp_zone
