@@ -60,9 +60,9 @@ resource google_compute_firewall default-allow-internal-int {
   source_ranges = ["10.0.20.0/24"]
 }
 resource google_compute_firewall allow-internal-egress {
-  name    = "${var.prefix}-allow-internal-egress"
-  network = google_compute_network.vpc_network_int.name
-  direction = "EGRESS"
+  name           = "${var.prefix}-allow-internal-egress"
+  network        = google_compute_network.vpc_network_int.name
+  direction      = "EGRESS"
   enable_logging = true
 
   allow {
@@ -83,7 +83,7 @@ resource google_compute_firewall mgmt {
 
   allow {
     protocol = "tcp"
-    ports    = [ "22", "443" ]
+    ports    = ["22", "443"]
   }
 
   source_ranges = var.adminSrcAddr
@@ -98,7 +98,7 @@ resource google_compute_firewall app {
 
   allow {
     protocol = "tcp"
-    ports    = [ "80", "443" ]
+    ports    = ["80", "443"]
   }
 
   source_ranges = var.adminSrcAddr

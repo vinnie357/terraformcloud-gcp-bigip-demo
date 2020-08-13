@@ -7,7 +7,7 @@ resource google_storage_bucket bigip-ha {
     not_found_page   = "404.html"
   }
   labels = {
-      f5_cloud_failover_label = var.f5_cloud_failover_label
+    f5_cloud_failover_label = var.f5_cloud_failover_label
   }
   force_destroy = true
 }

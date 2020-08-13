@@ -10,12 +10,12 @@ variable gcp_zone {}
 variable prefix {}
 
 # NETWORK
-variable extVpc {default = "terraform-network-ext-example"}
-variable intVpc {default = "terraform-network-int-example"}
-variable mgmtVpc {default = "terraform-network-mgmt-example"}
-variable extSubnet {default = "ext-sub-example"}
-variable intSubnet {default = "int-sub-example"}
-variable mgmtSubnet {default = "mgmt-sub-example"}
+variable extVpc { default = "terraform-network-ext-example" }
+variable intVpc { default = "terraform-network-int-example" }
+variable mgmtVpc { default = "terraform-network-mgmt-example" }
+variable extSubnet { default = "ext-sub-example" }
+variable intSubnet { default = "int-sub-example" }
+variable mgmtSubnet { default = "mgmt-sub-example" }
 variable alias_ip_range { default = "10.0.30.100/32" }
 variable managed_route1 { default = "192.0.2.0/24" } # adjust to your environment
 
@@ -48,7 +48,7 @@ variable onboard_log { default = "/var/log/cloud/onboard.log" }
 variable bigIqHost { default = "200.200.200.200" }
 variable bigIqUsername { default = "admin" }
 variable bigIqLicenseType { default = "licensePool" }
-variable bigIqLicensePool { default = "myPool" }
+variable bigIqLicensePool { default = "" }
 variable bigIqSkuKeyword1 { default = "key1" }
 variable bigIqSkuKeyword2 { default = "key1" }
 variable bigIqUnitOfMeasure { default = "hourly" }
