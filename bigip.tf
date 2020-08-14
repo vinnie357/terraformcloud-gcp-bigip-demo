@@ -24,11 +24,14 @@ resource "google_compute_target_instance" "f5vm02" {
 }
 
 # Setup Onboarding scripts
+# #do_byol.json, do.json, do_bigiq.json
+# Setup Onboarding scripts
 locals {
-  vm01_onboard = templatefile("${path.module}/onboard.sh.tpl", {
+  vm01_onboard = templatefile("${path.module}/templates/onboard.sh.tpl", {
     uname          = var.uname
     usecret        = var.usecret
     ksecret        = var.ksecret
+    bigIqSecret    = var.bigIqSecret != "" ? var.bigIqSecret : ""
     gcp_project_id = var.gcp_project_id
     DO_URL         = var.DO_URL
     AS3_URL        = var.AS3_URL
@@ -40,10 +43,11 @@ locals {
     TS_Document    = local.ts_json
     CFE_Document   = local.vm01_cfe_json
   })
-  vm02_onboard = templatefile("${path.module}/onboard.sh.tpl", {
+  vm02_onboard = templatefile("${path.module}/templates/onboard.sh.tpl", {
     uname          = var.uname
     usecret        = var.usecret
     ksecret        = var.ksecret
+    bigIqSecret    = var.bigIqSecret != "" ? var.bigIqSecret : ""
     gcp_project_id = var.gcp_project_id
     DO_URL         = var.DO_URL
     AS3_URL        = var.AS3_URL
@@ -55,7 +59,7 @@ locals {
     TS_Document    = local.ts_json
     CFE_Document   = local.vm02_cfe_json
   })
-  vm01_do_json = templatefile("${path.module}/do.json", {
+  vm01_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license1 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : ""}"}"}${var.bigIqUnitOfMeasure != "" ? "_ela" : ""}.json.tpl", {
     regKey             = var.license1
     admin_username     = var.uname
     host1              = "${var.prefix}-${var.host1_name}"
@@ -74,7 +78,7 @@ locals {
     bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
     bigIqHypervisor    = var.bigIqHypervisor
   })
-  vm02_do_json = templatefile("${path.module}/do.json", {
+  vm02_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license2 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : ""}"}"}${var.bigIqUnitOfMeasure != "" ? "_ela" : ""}.json.tpl", {
     regKey             = var.license2
     admin_username     = var.uname
     host1              = "${var.prefix}-${var.host1_name}"
@@ -93,32 +97,32 @@ locals {
     bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
     bigIqHypervisor    = var.bigIqHypervisor
   })
-  as3_json = templatefile("${path.module}/as3.json", {
+  as3_json = templatefile("${path.module}/templates/as3.json.tpl", {
     gcp_region = var.gcp_region
     #publicvip  = "0.0.0.0"
     publicvip  = google_compute_address.vip1.address
     privatevip = var.alias_ip_range
+    uuid       = uuid()
   })
-  ts_json = templatefile("${path.module}/ts.json", {
+  ts_json = templatefile("${path.module}/templates/ts.json.tpl", {
     gcp_project_id = var.gcp_project_id
     svc_acct       = var.svc_acct
     privateKeyId   = var.privateKeyId
   })
-  vm01_cfe_json = templatefile("${path.module}/cfe.json", {
+  vm01_cfe_json = templatefile("${path.module}/templates/cfe.json.tpl", {
     f5_cloud_failover_label = var.f5_cloud_failover_label
     managed_route1          = var.managed_route1
     remote_selfip           = ""
   })
-  vm02_cfe_json = templatefile("${path.module}/cfe.json", {
+  vm02_cfe_json = templatefile("${path.module}/templates/cfe.json.tpl", {
     f5_cloud_failover_label = var.f5_cloud_failover_label
     managed_route1          = var.managed_route1
     remote_selfip           = google_compute_instance.f5vm01.network_interface.0.network_ip
   })
 }
-
 # Create F5 BIG-IP VMs
-resource "google_compute_instance" "f5vm01" {
-  depends_on = [google_compute_subnetwork.vpc_network_mgmt_sub,google_compute_subnetwork.vpc_network_int_sub,google_compute_subnetwork.vpc_network_ext_sub]
+resource google_compute_instance f5vm01 {
+  depends_on     = [google_compute_subnetwork.vpc_network_mgmt_sub, google_compute_subnetwork.vpc_network_int_sub, google_compute_subnetwork.vpc_network_ext_sub]
   name           = "${var.prefix}-${var.host1_name}"
   machine_type   = var.bigipMachineType
   zone           = var.gcp_zone
@@ -169,7 +173,7 @@ resource "google_compute_instance" "f5vm01" {
 }
 
 resource "google_compute_instance" "f5vm02" {
-  depends_on = [google_compute_subnetwork.vpc_network_mgmt_sub,google_compute_subnetwork.vpc_network_int_sub,google_compute_subnetwork.vpc_network_ext_sub]
+  depends_on     = [google_compute_subnetwork.vpc_network_mgmt_sub, google_compute_subnetwork.vpc_network_int_sub, google_compute_subnetwork.vpc_network_ext_sub]
   name           = "${var.prefix}-${var.host2_name}"
   machine_type   = var.bigipMachineType
   zone           = var.gcp_zone
@@ -222,8 +226,12 @@ resource "google_compute_instance" "f5vm02" {
   }
 }
 
-# # Troubleshooting - create local output files
-# resource "local_file" "onboard_file" {
-#   content  = local.vm01_onboard
-#   filename = "${path.module}/vm01_onboard.tpl_data.json"
-# }
+# Troubleshooting - create local output files
+#resource "local_file" "onboard_file" {
+#  content  = local.vm01_onboard
+#  filename = "${path.module}/vm01_onboard.sh"
+#}
+#resource "local_file" "do_file" {
+#  content  = local.vm01_do_json
+#  filename = "${path.module}/vm01_do.json"
+#}

@@ -2,7 +2,7 @@
     "schemaVersion": "1.0.0",
     "class": "Device",
     "async": true,
-    "label": "Onboard BIG-IP into an HA Pair",
+    "label": "Onboard BIG-IP into an HA Pair POOL",
     "Common": {
         "class": "Tenant",
         "hostname": "$${local_host}",
@@ -12,6 +12,18 @@
             "ui.advisory.color": "green",
             "ui.advisory.text": "/Common/hostname",
             "config.allow.rfc3927": "enable"
+        },
+        "myLicense": {
+            "class": "License",
+            "licenseType": "${bigIqLicenseType}",
+            "bigIqHost": "${bigIqHost}",
+            "bigIqUsername": "${bigIqUsername}",
+            "bigIqPassword": "-bigIqPassword-",
+            "licensePool": "${bigIqLicensePool}",
+            "bigIpUsername": "${admin_username}",
+            "bigIpPassword": "$${admin_password}",
+            "hypervisor": "${bigIqHypervisor}",
+            "reachable": false
         },
         "myDns": {
             "class": "DNS",

@@ -5,7 +5,7 @@
     "declaration": {
       "class": "ADC",
       "schemaVersion": "3.13.0",
-      "id": "123abc",
+      "id": "${uuid}",
       "label": "Sample 1",
       "remark": "An HTTPS sample application",
       "controls": {
