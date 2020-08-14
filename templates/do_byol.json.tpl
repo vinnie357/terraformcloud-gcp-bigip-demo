@@ -16,7 +16,7 @@
         "myLicense": {
             "class": "License",
             "licenseType": "regKey",
-            "regKey": "${regkey}"
+            "regKey": "${regKey}"
         },
         "myDns": {
             "class": "DNS",

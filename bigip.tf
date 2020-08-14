@@ -25,61 +25,9 @@ resource "google_compute_target_instance" "f5vm02" {
 
 # Setup Onboarding scripts
 # #do_byol.json, do.json, do_bigiq.json
-data template_file vm01_do_json {
-  template = "${path.module}/templates/do ${var.license1 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : ""}"}.json.tpl}"
-
-  vars = {
-    regKey           = var.license1
-    admin_username   = var.uname
-    host1            = "${var.prefix}-${var.host1_name}"
-    host2            = "${var.prefix}-${var.host2_name}"
-    remote_host      = "${var.prefix}-${var.host2_name}"
-    dns_server       = var.dns_server
-    dns_suffix       = var.dns_suffix
-    ntp_server       = var.ntp_server
-    timezone         = var.timezone
-    bigIqLicenseType = var.bigIqLicenseType
-    bigIqHost        = var.bigIqHost
-    bigIqUsername    = var.bigIqUsername
-    #bigIqPassword      = var.bigIqPassword
-    #set in onboarding script
-    bigIqLicensePool   = var.bigIqLicensePool
-    bigIqSkuKeyword1   = var.bigIqSkuKeyword1
-    bigIqSkuKeyword2   = var.bigIqSkuKeyword2
-    bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
-    bigIqHypervisor    = var.bigIqHypervisor
-  }
-}
-
-data template_file vm02_do_json {
-  template = "${path.module}/templates/do ${var.license1 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : ""}"}.json.tpl}"
-
-  vars = {
-    regKey           = var.license2
-    admin_username   = var.uname
-    host1            = "${var.prefix}-${var.host1_name}"
-    host2            = "${var.prefix}-${var.host2_name}"
-    remote_host      = google_compute_instance.f5vm01.network_interface.1.network_ip
-    dns_server       = var.dns_server
-    dns_suffix       = var.dns_suffix
-    ntp_server       = var.ntp_server
-    timezone         = var.timezone
-    bigIqLicenseType = var.bigIqLicenseType
-    bigIqHost        = var.bigIqHost
-    bigIqUsername    = var.bigIqUsername
-    #bigIqPassword      = var.bigIqPassword
-    #set in onboarding script
-    bigIqLicensePool   = var.bigIqLicensePool
-    bigIqSkuKeyword1   = var.bigIqSkuKeyword1
-    bigIqSkuKeyword2   = var.bigIqSkuKeyword2
-    bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
-    bigIqHypervisor    = var.bigIqHypervisor
-  }
-}
-data template_file vm01_onboard {
-  template = "${path.module}/templates/onboard.sh.tpl"
-
-  vars = {
+# Setup Onboarding scripts
+locals {
+  vm01_onboard = templatefile("${path.module}/templates/onboard.sh.tpl", {
     uname          = var.uname
     usecret        = var.usecret
     ksecret        = var.ksecret
@@ -89,16 +37,12 @@ data template_file vm01_onboard {
     TS_URL         = var.TS_URL
     CF_URL         = var.CF_URL
     onboard_log    = var.onboard_log
-    DO_Document    = data.template_file.vm01_do_json.rendered
+    DO_Document    = local.vm01_do_json
     AS3_Document   = ""
-    TS_Document    = data.template_file.ts_json.rendered
-    CFE_Document   = data.template_file.vm01_cfe_json.rendered
-  }
-}
-data template_file vm02_onboard {
-  template = "${path.module}/templates/onboard.sh.tpl"
-
-  vars = {
+    TS_Document    = local.ts_json
+    CFE_Document   = local.vm01_cfe_json
+  })
+  vm02_onboard = templatefile("${path.module}/templates/onboard.sh.tpl", {
     uname          = var.uname
     usecret        = var.usecret
     ksecret        = var.ksecret
@@ -108,53 +52,74 @@ data template_file vm02_onboard {
     TS_URL         = var.TS_URL
     CF_URL         = var.CF_URL
     onboard_log    = var.onboard_log
-    DO_Document    = data.template_file.vm02_do_json.rendered
-    AS3_Document   = data.template_file.as3_json.rendered
-    TS_Document    = data.template_file.ts_json.rendered
-    CFE_Document   = data.template_file.vm02_cfe_json.rendered
-  }
-}
-data template_file as3_json {
-  template = "${path.module}/templates/as3.json.tpl"
-
-  vars = {
+    DO_Document    = local.vm02_do_json
+    AS3_Document   = local.as3_json
+    TS_Document    = local.ts_json
+    CFE_Document   = local.vm02_cfe_json
+  })
+  vm01_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license1 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : "" }" }"}.json.tpl", {
+    regKey             = var.license1
+    admin_username     = var.uname
+    host1              = "${var.prefix}-${var.host1_name}"
+    host2              = "${var.prefix}-${var.host2_name}"
+    remote_host        = "${var.prefix}-${var.host2_name}"
+    dns_server         = var.dns_server
+    dns_suffix         = var.dns_suffix
+    ntp_server         = var.ntp_server
+    timezone           = var.timezone
+    bigIqLicenseType   = var.bigIqLicenseType
+    bigIqHost          = var.bigIqHost
+    bigIqUsername      = var.bigIqUsername
+    bigIqLicensePool   = var.bigIqLicensePool
+    bigIqSkuKeyword1   = var.bigIqSkuKeyword1
+    bigIqSkuKeyword2   = var.bigIqSkuKeyword2
+    bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
+    bigIqHypervisor    = var.bigIqHypervisor
+  })
+  vm02_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license2 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : "" }" }"}.json.tpl", {
+    regKey             = var.license2
+    admin_username     = var.uname
+    host1              = "${var.prefix}-${var.host1_name}"
+    host2              = "${var.prefix}-${var.host2_name}"
+    remote_host        = google_compute_instance.f5vm01.network_interface.1.network_ip
+    dns_server         = var.dns_server
+    dns_suffix         = var.dns_suffix
+    ntp_server         = var.ntp_server
+    timezone           = var.timezone
+    bigIqLicenseType   = var.bigIqLicenseType
+    bigIqHost          = var.bigIqHost
+    bigIqUsername      = var.bigIqUsername
+    bigIqLicensePool   = var.bigIqLicensePool
+    bigIqSkuKeyword1   = var.bigIqSkuKeyword1
+    bigIqSkuKeyword2   = var.bigIqSkuKeyword2
+    bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
+    bigIqHypervisor    = var.bigIqHypervisor
+  })
+  as3_json = templatefile("${path.module}/templates/as3.json.tpl", {
     gcp_region = var.gcp_region
     #publicvip  = "0.0.0.0"
     publicvip  = google_compute_address.vip1.address
     privatevip = var.alias_ip_range
     uuid       = uuid()
-  }
-}
-data template_file ts_json {
-  template = "${path.module}/templates/ts.json.tpl"
-
-  vars = {
+  })
+  ts_json = templatefile("${path.module}/templates/ts.json.tpl", {
     gcp_project_id = var.gcp_project_id
     svc_acct       = var.svc_acct
     privateKeyId   = var.privateKeyId
-  }
-}
-data template_file vm01_cfe_json {
-  template = "${path.module}/templates/cfe.json.tpl"
-
-  vars = {
+  })
+  vm01_cfe_json = templatefile("${path.module}/templates/cfe.json.tpl", {
     f5_cloud_failover_label = var.f5_cloud_failover_label
     managed_route1          = var.managed_route1
     remote_selfip           = ""
-  }
-}
-data template_file vm02_cfe_json {
-  template = "${path.module}/templates/cfe.json.tpl"
-
-  vars = {
+  })
+  vm02_cfe_json = templatefile("${path.module}/templates/cfe.json.tpl", {
     f5_cloud_failover_label = var.f5_cloud_failover_label
     managed_route1          = var.managed_route1
     remote_selfip           = google_compute_instance.f5vm01.network_interface.0.network_ip
-  }
+  })
 }
-
 # Create F5 BIG-IP VMs
-resource "google_compute_instance" "f5vm01" {
+resource google_compute_instance f5vm01 {
   depends_on     = [google_compute_subnetwork.vpc_network_mgmt_sub, google_compute_subnetwork.vpc_network_int_sub, google_compute_subnetwork.vpc_network_ext_sub]
   name           = "${var.prefix}-${var.host1_name}"
   machine_type   = var.bigipMachineType
@@ -196,7 +161,7 @@ resource "google_compute_instance" "f5vm01" {
   metadata = {
     ssh-keys               = "${var.uname}:${var.gceSshPubKey}"
     block-project-ssh-keys = true
-    startup-script         = var.customImage != "" ? var.customUserData : data.template_file.vm01_onboard.rendered
+    startup-script         = var.customImage != "" ? var.customUserData : local.vm01_onboard
   }
 
   service_account {
@@ -250,7 +215,7 @@ resource "google_compute_instance" "f5vm02" {
   metadata = {
     ssh-keys               = "${var.uname}:${var.gceSshPubKey}"
     block-project-ssh-keys = true
-    startup-script         = var.customImage != "" ? var.customUserData : data.template_file.vm02_onboard.rendered
+    startup-script         = var.customImage != "" ? var.customUserData : local.vm02_onboard
   }
 
   service_account {
@@ -259,8 +224,12 @@ resource "google_compute_instance" "f5vm02" {
   }
 }
 
-# # Troubleshooting - create local output files
-# resource "local_file" "onboard_file" {
-#   content  = local.vm01_onboard
-#   filename = "${path.module}/vm01_onboard.tpl_data.json"
-# }
+# Troubleshooting - create local output files
+#resource "local_file" "onboard_file" {
+#  content  = local.vm01_onboard
+#  filename = "${path.module}/vm01_onboard.sh"
+#}
+#resource "local_file" "do_file" {
+#  content  = local.vm01_do_json
+#  filename = "${path.module}/vm01_do.json"
+#}

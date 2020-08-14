@@ -98,7 +98,7 @@ resource google_compute_firewall app {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "443"]
+    ports    = ["80", "443", "22"]
   }
 
   source_ranges = var.adminSrcAddr
