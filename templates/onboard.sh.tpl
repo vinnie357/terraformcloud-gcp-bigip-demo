@@ -496,8 +496,9 @@ rm -rf $rpmFilePath/*.rpm
 #############################
 
 # https://support.f5.com/csp/article/K11948
-echo "(/config/cloud/custom-config.sh | tee /var/log/cloud/custom-config.log >> $LOG_FILE) &" >> /config/startup
 chmod +w /config/startup
+echo "(/config/cloud/custom-config.sh | tee /var/log/cloud/custom-config.log >> $LOG_FILE) &" >> /config/startup
+echo "/config/cloud/mgmt-route.sh &" >> /config/startup
 chmod +x /config/cloud/mgmt-route.sh
 chmod +x /config/cloud/custom-config.sh
 chmod +x /config/cloud/collect-interface.sh
