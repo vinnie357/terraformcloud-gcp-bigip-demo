@@ -31,6 +31,7 @@ locals {
     uname          = var.uname
     usecret        = var.usecret
     ksecret        = var.ksecret
+    bigIqSecret    = var.bigIqSecret != "" ? var.bigIqSecret : ""
     gcp_project_id = var.gcp_project_id
     DO_URL         = var.DO_URL
     AS3_URL        = var.AS3_URL
@@ -46,6 +47,7 @@ locals {
     uname          = var.uname
     usecret        = var.usecret
     ksecret        = var.ksecret
+    bigIqSecret    = var.bigIqSecret != "" ? var.bigIqSecret : ""
     gcp_project_id = var.gcp_project_id
     DO_URL         = var.DO_URL
     AS3_URL        = var.AS3_URL
@@ -57,7 +59,7 @@ locals {
     TS_Document    = local.ts_json
     CFE_Document   = local.vm02_cfe_json
   })
-  vm01_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license1 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : "" }" }"}.json.tpl", {
+  vm01_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license1 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : ""}"}"}${var.bigIqUnitOfMeasure != "" ? "_ela" : ""}.json.tpl", {
     regKey             = var.license1
     admin_username     = var.uname
     host1              = "${var.prefix}-${var.host1_name}"
@@ -76,7 +78,7 @@ locals {
     bigIqUnitOfMeasure = var.bigIqUnitOfMeasure
     bigIqHypervisor    = var.bigIqHypervisor
   })
-  vm02_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license2 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : "" }" }"}.json.tpl", {
+  vm02_do_json = templatefile("${"${"${path.module}/templates/do"}${var.license2 != "" ? "_byol" : "${var.bigIqLicensePool != "" ? "_bigiq" : ""}"}"}${var.bigIqUnitOfMeasure != "" ? "_ela" : ""}.json.tpl", {
     regKey             = var.license2
     admin_username     = var.uname
     host1              = "${var.prefix}-${var.host1_name}"

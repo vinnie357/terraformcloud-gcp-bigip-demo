@@ -2,7 +2,7 @@
     "schemaVersion": "1.0.0",
     "class": "Device",
     "async": true,
-    "label": "Onboard BIG-IP into an HA Pair",
+    "label": "Onboard BIG-IP into an HA Pair PAYG",
     "Common": {
         "class": "Tenant",
         "hostname": "$${local_host}",

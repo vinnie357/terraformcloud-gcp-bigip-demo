@@ -191,6 +191,7 @@ function wait_for_ready {
 projectId='${gcp_project_id}'
 usecret='${usecret}'
 ksecret='${ksecret}'
+bigIqSecret='${bigIqSecret}'
 mgmtGuiPort="443"
 
 # Workaround: Use TMSH commands for networking
@@ -234,8 +235,8 @@ date
 waitNetwork
 echo "Retrieving BIG-IP password from Metadata secret"
 svcacct_token=$(curl -s -f --retry 20 "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" -H "Metadata-Flavor: Google" | jq -r ".access_token")
-passwd=$(curl -s -f --retry 20 "https://secretmanager.googleapis.com/v1/projects/$projectId/secrets/$usecret/versions/1:access" -H "Authorization: Bearer $svcacct_token" | jq -r ".payload.data" | base64 --decode)
-
+passwd=$(curl -s -f --retry 20 "https://secretmanager.googleapis.com/v1/projects/$projectId/secrets/$usecret/versions/latest:access" -H "Authorization: Bearer $svcacct_token" | jq -r ".payload.data" | base64 --decode)
+bigiqPass=$(curl -s -f --retry 20 "https://secretmanager.googleapis.com/v1/projects/$projectId/secrets/$bigIqSecret/versions/latest:access" -H "Authorization: Bearer $svcacct_token" | jq -r ".payload.data" | base64 --decode)
 date
 
 # Submit DO Declaration
@@ -243,7 +244,7 @@ wait_for_ready declarative-onboarding
 file_loc="/config/cloud/do.json"
 echo "Submitting DO declaration"
 sed -i "s/\$${admin_password}/$passwd/g" $file_loc
-sed -i "s/\$${bigIqPassword}/$passwd/g" $file_loc
+sed -i "s/-bigIqPassword-/$bigiqPass/g" $file_loc
 sed -i "s/\$${local_selfip_ext}/$INT1ADDRESS/g" $file_loc
 sed -i "s/\$${local_selfip_int}/$INT2ADDRESS/g" $file_loc
 sed -i "s/\$${local_host}/$HOSTNAME/g" $file_loc
@@ -327,7 +328,7 @@ fi
 
 # Cleanup
 echo "Removing DO/AS3/TS/CFE declaration files"
-rm -rf /config/cloud/do.json /config/cloud/as3.json /config/cloud/ts.json /config/cloud/cfe.json
+#rm -rf /config/cloud/do.json /config/cloud/as3.json /config/cloud/ts.json /config/cloud/cfe.json
 
 date
 echo "Finished custom config"

@@ -2,7 +2,7 @@
     "schemaVersion": "1.0.0",
     "class": "Device",
     "async": true,
-    "label": "Onboard BIG-IP into an HA Pair POOL",
+    "label": "Onboard BIG-IP into an HA Pair ELA",
     "Common": {
         "class": "Tenant",
         "hostname": "$${local_host}",
@@ -23,6 +23,8 @@
             "bigIpUsername": "${admin_username}",
             "bigIpPassword": "$${admin_password}",
             "hypervisor": "${bigIqHypervisor}",
+            "unitOfMeasure": "${bigIqUnitOfMeasure}",
+            "skuKeyword1": "${bigIqSkuKeyword1}",
             "reachable": false
         },
         "myDns": {
